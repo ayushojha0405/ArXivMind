@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+chromadb
+langchain
+langchain-openai
+python-dotenv
+sqlalchemy
+bcrypt
+pyjwt
+email-validator
+psycopg2-binary
+gunicorn

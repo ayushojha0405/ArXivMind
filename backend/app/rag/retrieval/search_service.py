@@ -12,7 +12,7 @@ class SearchService:
         where_clause = {"paper_id": filter_paper_id} if filter_paper_id else None
 
         # Fetch more chunks to increase the chance of finding top_k unique papers if unique_papers is True
-        fetch_k = top_k * 4 if unique_papers else top_k
+        fetch_k = top_k * 2 if unique_papers else top_k
         
         results = self.retriever.search(
             query=query,

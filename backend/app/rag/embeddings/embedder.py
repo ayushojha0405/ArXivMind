@@ -3,7 +3,15 @@ from functools import lru_cache
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 class EmbeddingModel:
-    def __init__(self):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(EmbeddingModel, cls).__new__(cls)
+            cls._instance._init()
+        return cls._instance
+
+    def _init(self):
         self.model = GoogleGenerativeAIEmbeddings(
             model="gemini-embedding-001",
             google_api_key=os.environ.get("GEMINI_API_KEY", "dummy_key")

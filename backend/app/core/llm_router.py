@@ -7,7 +7,15 @@ class LLMRouter:
     Intelligent Cost-Aware LLM Router.
     Routes all tasks to Google Gemini (massive context window, lightning fast).
     """
-    def __init__(self):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(LLMRouter, cls).__new__(cls)
+            cls._instance._init()
+        return cls._instance
+
+    def _init(self):
         # Initialize Heavyweight Model
         self.heavy_llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",

@@ -25,20 +25,18 @@ def _warmup_services():
     from app.rag.retrieval.search_service import SearchService
     from app.core.llm_router import LLMRouter
 
-    service = SearchService()
-    chunk_count = service.retriever.store.collection.count()
-    print(f"---> ChromaDB indexed chunks: {chunk_count}")
-
-    if os.environ.get("GEMINI_API_KEY") and os.environ.get("GEMINI_API_KEY") != "dummy_key":
-        service.retriever.embedder.embed_text("warmup")
-        print("---> Embedding model warmed up.")
-
-    LLMRouter()
-    print("---> LLM router initialized.")
-
+    try:
+        service = SearchService()
+        chunk_count = service.retriever.store.collection.count()
+        print(f"---> ChromaDB indexed chunks: {chunk_count}")
+        LLMRouter()
+        print("---> LLM router initialized.")
+    except Exception as e:
+        print(f"---> Warmup failed, continuing: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Run lightweight initializations
     await asyncio.to_thread(_warmup_services)
     yield
 

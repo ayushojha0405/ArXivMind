@@ -1,6 +1,8 @@
 import os
 from functools import lru_cache
+
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
 
 class EmbeddingModel:
     _instance = None
@@ -14,9 +16,14 @@ class EmbeddingModel:
     def _init(self):
         self.model = GoogleGenerativeAIEmbeddings(
             model="gemini-embedding-001",
-            google_api_key=os.environ.get("GEMINI_API_KEY", "dummy_key")
+            google_api_key=os.environ.get("GEMINI_API_KEY", "dummy_key"),
         )
 
-    @lru_cache(maxsize=128)
-    def embed_text(self, text):
+    @lru_cache(maxsize=512)
+    def embed_text(self, text: str):
         return self.model.embed_query(text)
+
+    async def embed_text_async(self, text: str):
+        import asyncio
+
+        return await asyncio.to_thread(self.embed_text, text)

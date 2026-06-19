@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Navbar from './Navbar';
+import { warmupBackend } from '../../services/api';
 
 function Layout({ children }) {
+  useEffect(() => {
+    warmupBackend();
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />

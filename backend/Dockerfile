@@ -8,8 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Expose FastAPI default port
+ENV CHROMA_DB_PATH=/var/data/chroma
+
 EXPOSE 8000
 
-# Run uvicorn server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "--workers", "1", "--timeout", "120", "--preload", "--bind", "0.0.0.0:8000"]

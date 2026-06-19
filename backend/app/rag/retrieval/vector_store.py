@@ -1,5 +1,7 @@
-import chromadb
 import os
+
+import chromadb
+
 
 class VectorStore:
     _instance = None
@@ -11,21 +13,30 @@ class VectorStore:
         return cls._instance
 
     def _init(self):
-        db_path = os.environ.get("CHROMA_DB_PATH", "./chroma_db")
-        self.client = chromadb.PersistentClient(
-            path=db_path
-        )
+        chroma_host = os.environ.get("CHROMA_HOST")
+        if chroma_host:
+            port = int(os.environ.get("CHROMA_PORT", "8000"))
+            ssl = os.environ.get("CHROMA_SSL", "false").lower() == "true"
+            headers = {}
+            api_key = os.environ.get("CHROMA_API_KEY")
+            if api_key:
+                headers["Authorization"] = f"Bearer {api_key}"
+            self.client = chromadb.HttpClient(
+                host=chroma_host,
+                port=port,
+                ssl=ssl,
+                headers=headers or None,
+            )
+        else:
+            db_path = os.environ.get("CHROMA_DB_PATH", "./chroma_db")
+            self.client = chromadb.PersistentClient(path=db_path)
+
         self.collection = self.client.get_or_create_collection(
-            name="arxivmind"
+            name="arxivmind",
+            metadata={"hnsw:space": "cosine"},
         )
 
-    def add_document(
-        self,
-        doc_id,
-        text,
-        embedding,
-        metadata
-    ):
+    def add_document(self, doc_id, text, embedding, metadata):
         clean_metadata = {
             k: str(v) if v is not None else ""
             for k, v in metadata.items()
@@ -34,5 +45,5 @@ class VectorStore:
             ids=[doc_id],
             documents=[text],
             embeddings=[embedding],
-            metadatas=[clean_metadata]
+            metadatas=[clean_metadata],
         )

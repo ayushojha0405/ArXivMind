@@ -25,12 +25,4 @@ class LLMRouter:
         )
 
     def get_llm(self, task_type: str, context_length: int = 0) -> BaseChatModel:
-        """
-        Dynamically route to the best LLM.
-        :param task_type: "summarize", "compare", or "qa"
-        :param context_length: Estimated length of context/documents in characters.
-        """
-        # Route everything to Gemini. It's fast, handles massive contexts, 
-        # and avoids the unreliability of the HuggingFace free tier endpoints.
-        print(f"[Router] Routing {task_type} task (Context: {context_length} chars) to Gemini")
         return self.heavy_llm

@@ -7,28 +7,50 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000,
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      // Redirect to login if not already there
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login?expired=true';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+export const aiApi = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 90000,
+});
 
-export const searchPapers = async (query, topK = 10) => {
+const attachAuthInterceptor = (client) => {
+  client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('token');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login?expired=true';
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+};
+
+attachAuthInterceptor(api);
+attachAuthInterceptor(aiApi);
+
+export const warmupBackend = async () => {
+  try {
+    await api.get('/health', { timeout: 20000 });
+  } catch {
+    // Non-blocking: backend may still be waking from cold start
+  }
+};
+
+export const searchPapers = async (query, topK = 10, signal = null) => {
   const token = localStorage.getItem('token');
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const response = await api.get('/search/', {
     params: { q: query, top_k: topK },
-    headers
+    headers,
+    signal,
   });
   return response.data;
 };
@@ -48,17 +70,17 @@ export const askQuestion = async (question, contextPaperId = null) => {
   if (contextPaperId) {
     payload.context_paper_id = contextPaperId;
   }
-  const response = await api.post('/qa/', payload);
+  const response = await aiApi.post('/qa/', payload);
   return response.data;
 };
 
 export const summarizePaper = async (paperId) => {
-  const response = await api.post('/summarize/', { paper_id: paperId });
+  const response = await aiApi.post('/summarize/', { paper_id: paperId });
   return response.data;
 };
 
 export const comparePapers = async (paperIdA, paperIdB) => {
-  const response = await api.post('/compare/', { paper_a_id: paperIdA, paper_b_id: paperIdB });
+  const response = await aiApi.post('/compare/', { paper_a_id: paperIdA, paper_b_id: paperIdB });
   return response.data;
 };
 

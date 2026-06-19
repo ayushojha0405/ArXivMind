@@ -26,7 +26,7 @@ api.interceptors.response.use(
 export const searchPapers = async (query, topK = 10) => {
   const token = localStorage.getItem('token');
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const response = await api.get('/search', {
+  const response = await api.get('/search/', {
     params: { q: query, top_k: topK },
     headers
   });

@@ -1,5 +1,4 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.12.1+cpu
 fastapi
 uvicorn
 pydantic
@@ -13,7 +12,6 @@ pyjwt
 email-validator
 psycopg2-binary
 gunicorn
-sentence-transformers
 langchain-google-genai
 langchain-huggingface
 langchain-text-splitters

@@ -8,5 +8,5 @@ class DocumentChunk(Base):
 
     id = Column(String, primary_key=True, index=True)
     text = Column(Text, nullable=False)
-    embedding = Column(Vector())
+    embedding = Column(Vector(3072))
     metadata_ = Column("metadata", JSONB)

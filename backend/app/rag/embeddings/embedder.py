@@ -34,10 +34,10 @@ class EmbeddingModel:
             except concurrent.futures.TimeoutError:
                 print("DEBUG: Gemini embedding TIMED OUT after 8 seconds!", flush=True)
                 # Return an empty embedding vector to allow the search to proceed gracefully
-                return [0.0] * 768
+                return [0.0] * 3072
             except Exception as e:
                 print(f"DEBUG: Gemini embedding FAILED with error: {e}", flush=True)
-                return [0.0] * 768
+                return [0.0] * 3072
 
     async def embed_text_async(self, text: str):
         import asyncio

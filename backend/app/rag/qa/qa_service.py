@@ -16,7 +16,9 @@ class QAService:
         chunks = self.search_service.search_chunks(query=question, top_k=20)
 
         if context_paper_id:
-            context_results = [c for c in chunks if c["paper_id"] == context_paper_id][:3]
+            context_results = self.search_service.search_chunks(
+                query=question, top_k=3, filter_paper_id=context_paper_id
+            )
             global_results = []
             seen = {context_paper_id}
             for chunk in chunks:

@@ -7,6 +7,19 @@ class PgCollection:
         with SessionLocal() as db:
             return db.query(DocumentChunk).count()
             
+    def get(self, where=None, include=None):
+        with SessionLocal() as db:
+            query = db.query(DocumentChunk)
+            if where:
+                for k, v in where.items():
+                    query = query.filter(DocumentChunk.metadata_[k].astext == str(v))
+            results = query.all()
+            return {
+                "ids": [r.id for r in results],
+                "documents": [r.text for r in results],
+                "metadatas": [r.metadata_ for r in results]
+            }
+            
     def query(self, query_embeddings, n_results=5, where=None):
         query_embedding = query_embeddings[0]
         

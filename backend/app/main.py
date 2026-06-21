@@ -14,7 +14,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.core.database import engine, Base, DATABASE_URL
-from app.models import user, workspace, session, collections
+from app.models import user, workspace, session, collections, document_chunk
 from app.api import search, paper, qa, summarize, compare, analytics
 from app.auth import routes as auth_routes
 from app.collections import routes as coll_routes
@@ -49,6 +49,15 @@ try:
         else DATABASE_URL
     )
     print(f"\n---> Connecting to database: {safe_url}")
+
+    if "postgres" in DATABASE_URL:
+        from sqlalchemy import text
+        try:
+            with engine.begin() as conn:
+                conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+            print("---> Vector extension ensured.")
+        except Exception as e:
+            print(f"---> Failed to create vector extension: {e}")
 
     Base.metadata.create_all(bind=engine)
     print("---> PostgreSQL connection successful.")

@@ -1,8 +1,36 @@
-import os
 import threading
+from app.core.database import SessionLocal
+from app.models.document_chunk import DocumentChunk
 
-import chromadb
-
+class PgCollection:
+    def count(self):
+        with SessionLocal() as db:
+            return db.query(DocumentChunk).count()
+            
+    def query(self, query_embeddings, n_results=5, where=None):
+        query_embedding = query_embeddings[0]
+        
+        with SessionLocal() as db:
+            query = db.query(
+                DocumentChunk, 
+                DocumentChunk.embedding.cosine_distance(query_embedding).label("distance")
+            )
+            
+            if where:
+                for k, v in where.items():
+                    query = query.filter(DocumentChunk.metadata_[k].astext == str(v))
+            
+            results = query.order_by("distance").limit(n_results).all()
+            
+            documents = [[r.DocumentChunk.text for r in results]]
+            metadatas = [[r.DocumentChunk.metadata_ for r in results]]
+            distances = [[r.distance for r in results]]
+            
+            return {
+                "documents": documents,
+                "metadatas": metadatas,
+                "distances": distances
+            }
 
 class VectorStore:
     _instance = None
@@ -16,37 +44,25 @@ class VectorStore:
         return cls._instance
 
     def _init(self):
-        chroma_host = os.environ.get("CHROMA_HOST")
-        if chroma_host:
-            port = int(os.environ.get("CHROMA_PORT", "8000"))
-            ssl = os.environ.get("CHROMA_SSL", "false").lower() == "true"
-            headers = {}
-            api_key = os.environ.get("CHROMA_API_KEY")
-            if api_key:
-                headers["Authorization"] = f"Bearer {api_key}"
-            self.client = chromadb.HttpClient(
-                host=chroma_host,
-                port=port,
-                ssl=ssl,
-                headers=headers or None,
-            )
-        else:
-            db_path = os.environ.get("CHROMA_DB_PATH", "./chroma_db")
-            self.client = chromadb.PersistentClient(path=db_path)
-
-        self.collection = self.client.get_or_create_collection(
-            name="arxivmind",
-            metadata={"hnsw:space": "cosine"},
-        )
+        self.collection = PgCollection()
 
     def add_document(self, doc_id, text, embedding, metadata):
         clean_metadata = {
             k: str(v) if v is not None else ""
             for k, v in metadata.items()
         }
-        self.collection.add(
-            ids=[doc_id],
-            documents=[text],
-            embeddings=[embedding],
-            metadatas=[clean_metadata],
-        )
+        with SessionLocal() as db:
+            chunk = db.query(DocumentChunk).filter_by(id=doc_id).first()
+            if not chunk:
+                chunk = DocumentChunk(
+                    id=doc_id, 
+                    text=text, 
+                    embedding=embedding, 
+                    metadata_=clean_metadata
+                )
+                db.add(chunk)
+            else:
+                chunk.text = text
+                chunk.embedding = embedding
+                chunk.metadata_ = clean_metadata
+            db.commit()

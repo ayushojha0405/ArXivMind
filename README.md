@@ -37,30 +37,20 @@ graph TD
 
 ## Screenshots
 
-<details>
-<summary>Home Page</summary>
-<img src="./screenshots/home.png" alt="Home Page">
-</details>
+### Home Page
+![Home Page](./screenshots/home.png)
 
-<details>
-<summary>Search Results</summary>
-<img src="./screenshots/search.png" alt="Search Results">
-</details>
+### Search Results
+![Search Results](./screenshots/search.png)
 
-<details>
-<summary>RAG Chat Interface</summary>
-<img src="./screenshots/chatbot.png" alt="RAG Chat">
-</details>
+### RAG Chat Interface
+![RAG Chat](./screenshots/chatbot.png)
 
-<details>
-<summary>AI Summarizer</summary>
-<img src="./screenshots/summarise.png" alt="Summarizer">
-</details>
+### AI Summarizer
+![Summarizer](./screenshots/summarise.png)
 
-<details>
-<summary>Paper Comparison Tool</summary>
-<img src="./screenshots/compare.png" alt="Compare">
-</details>
+### Paper Comparison Tool
+![Compare](./screenshots/compare.png)
 
 ---
 

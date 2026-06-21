@@ -38,13 +38,23 @@ graph TD
 ## Screenshots
 
 <details>
+<summary>Home Page</summary>
+<img src="./screenshots/home.png" alt="Home Page">
+</details>
+
+<details>
+<summary>Search Results</summary>
+<img src="./screenshots/search.png" alt="Search Results">
+</details>
+
+<details>
 <summary>RAG Chat Interface</summary>
-<img src="./screenshots/chat.png" alt="RAG Chat">
+<img src="./screenshots/chatbot.png" alt="RAG Chat">
 </details>
 
 <details>
 <summary>AI Summarizer</summary>
-<img src="./screenshots/summarizer.png" alt="Summarizer">
+<img src="./screenshots/summarise.png" alt="Summarizer">
 </details>
 
 <details>

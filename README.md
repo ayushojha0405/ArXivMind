@@ -1,56 +1,117 @@
 # ArXivMind 🧠
 
-ArXivMind is a next-generation AI-powered research assistant for exploring, querying, summarizing, and comparing research papers from the ArXiv database. Built with a robust FastAPI backend, ChromaDB for semantic vector search, and a stunning React glassmorphism frontend.
+ArXivMind is a next-generation AI-powered research assistant for exploring, querying, summarizing, and comparing research papers from the ArXiv database. Built with a robust FastAPI backend, Supabase pgvector for lightning-fast semantic search, Google Gemini for advanced AI capabilities, and a stunning React glassmorphism frontend.
+
+![Overview](./screenshots/home.png)
 
 ## Features
 
-- **Semantic Search**: Find papers using natural language queries.
+- **Semantic Search**: Find papers using natural language queries instead of just keywords.
 - **RAG QA Chat**: Ask complex questions and get context-aware answers grounded in specific research papers.
-- **AI Summarization**: Automatically generate concise summaries, contributions, and future work.
-- **Paper Comparison**: Compare methodologies and results of two distinct papers.
+- **AI Summarization**: Automatically generate concise summaries, pinpointing contributions and future work.
+- **Paper Comparison**: Compare methodologies and results of two distinct papers side-by-side.
 - **Workspaces & Collections**: Create an account, save papers, and build curated collections.
 - **Trend Analytics**: Explore publication velocities and advanced author citation networks.
 
-## Architecture
+## Architecture & Tech Stack
+
+```mermaid
+graph TD
+    Client([User Browser]) <-->|HTTPS / REST API| Frontend[React Frontend<br>Hosted on Vercel]
+    Frontend <-->|FastAPI JSON Endpoints| Backend[Python FastAPI Backend<br>Hosted on Render]
+    
+    subgraph AI Layer
+        Backend <-->|Embeddings & Text Generation| Gemini{{Google Gemini 1.5<br>LLM & Embedder}}
+    end
+
+    subgraph Data Layer
+        Backend <-->|SQLAlchemy ORM| DBRelational[(Supabase PostgreSQL<br>Users, History, Collections)]
+        Backend <-->|Vector Store Adapter| DBVector[(Supabase pgvector<br>Embeddings & Chunks)]
+    end
+```
 
 - **Frontend**: React, Vite, React Router DOM, Custom Glassmorphism CSS.
-- **Backend**: FastAPI, SQLAlchemy (SQLite/PostgreSQL), JWT Authentication.
-- **AI/Vector**: LangChain, OpenAI (`gpt-4o-mini`), ChromaDB.
+- **Backend**: FastAPI, SQLAlchemy, JWT Authentication.
+- **Database (Vector & Relational)**: Supabase PostgreSQL with `pgvector` extension and `halfvec` indexing.
+- **AI Models**: LangChain, Google Generative AI (`gemini-1.5-flash`).
+
+## Screenshots
+
+<details>
+<summary>RAG Chat Interface</summary>
+<img src="./screenshots/chat.png" alt="RAG Chat">
+</details>
+
+<details>
+<summary>AI Summarizer</summary>
+<img src="./screenshots/summarizer.png" alt="Summarizer">
+</details>
+
+<details>
+<summary>Paper Comparison Tool</summary>
+<img src="./screenshots/compare.png" alt="Compare">
+</details>
+
+---
 
 ## Getting Started Locally
 
 ### Prerequisites
 - Node.js (v18+)
 - Python 3.10+
-- OpenAI API Key
+- Google Gemini API Key
+- Supabase Project URL & Password
 
 ### Backend Setup
-```bash
-cd backend
-python -m venv venv
-# Windows: venv\Scripts\activate | Mac/Linux: source venv/bin/activate
-pip install -r requirements.txt
-
-# Create .env file
-echo "OPENAI_API_KEY=your-key-here" > .env
-
-# Run server
-uvicorn app.main:app --reload
-```
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   # Windows
+   .\venv\Scripts\activate
+   # Mac/Linux
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Create a `.env` file in the `backend` folder and add your credentials:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   DATABASE_URL=postgresql://postgres.your_supabase_project:your_password@aws-0-region.pooler.supabase.com:6543/postgres
+   CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+   ```
+5. Seed the database with AI embeddings:
+   ```bash
+   python seed_db.py
+   ```
+6. Run the server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
 ### Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Docker Setup
-You can also run the entire application using Docker Compose:
-```bash
-docker-compose up --build
-```
-The frontend will be available at `http://localhost:5173` and the backend API at `http://localhost:8000`.
+## Deployment
+- **Frontend**: Easily deployable on [Vercel](https://vercel.com).
+- **Backend**: Configured for deployment on [Render](https://render.com) using the included `render.yaml`.
+- **Database**: Hosted on [Supabase](https://supabase.com).
 
 ## License
 MIT
